@@ -20,15 +20,6 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build application
-        run: npm run build
-
-      - name: Generate Prisma Client
-        run: npx prisma generate
-
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -73,6 +64,15 @@ jobs:
 
           # Instagram
           echo "INSTAGRAM_ACCESS_TOKEN=$(gcloud secrets versions access latest --secret=INSTAGRAM_ACCESS_TOKEN)" >> .env.production
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Build application
+        run: npm run build
 
       - name: Deploy to App Engine (Staging)
         run: gcloud app deploy app.staging.yaml --quiet --promote
