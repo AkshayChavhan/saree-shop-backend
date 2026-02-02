@@ -105,5 +105,16 @@ jobs:
       - name: Build application
         run: npm run build
 
+      - name: Prepare standalone build
+        run: |
+          # Copy static files to standalone folder (required for Next.js standalone)
+          cp -r .next/static .next/standalone/.next/
+          cp -r public .next/standalone/
+
+      - name: Substitute environment variables in app.staging.yaml
+        run: |
+          envsubst < app.staging.yaml > app.staging.yaml.tmp
+          mv app.staging.yaml.tmp app.staging.yaml
+
       - name: Deploy to App Engine (Staging)
         run: gcloud app deploy app.staging.yaml --quiet --promote
