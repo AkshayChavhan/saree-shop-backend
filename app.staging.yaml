@@ -1,5 +1,5 @@
 runtime: nodejs20
-service: staging
+service: default
 instance_class: F1
 
 env_variables:
