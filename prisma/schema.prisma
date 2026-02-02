@@ -8,19 +8,22 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  clerkId   String   @unique
-  email     String   @unique
-  name      String?
-  phone     String?
-  role      UserRole @default(USER)
-  addresses Address[]
-  orders    Order[]
-  cart      Cart?
-  wishlist  Wishlist?
-  reviews   Review[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId         String   @unique
+  email           String   @unique
+  name            String?
+  phone           String?
+  imageUrl        String?
+  profileImageUrl String?
+  gender          String?
+  role            UserRole @default(USER)
+  addresses       Address[]
+  orders          Order[]
+  cart            Cart?
+  wishlist        Wishlist?
+  reviews         Review[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@map("users")
 }
@@ -31,6 +34,10 @@ model Category {
   slug        String    @unique
   description String?
   image       String?
+  imagePublicId String? // Cloudinary public ID for deletion
+  imageWidth    Int?
+  imageHeight   Int?
+  imageFormat   String?
   parentId    String?   @db.ObjectId
   parent      Category? @relation("CategoryToCategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   children    Category[] @relation("CategoryToCategory")
@@ -43,15 +50,17 @@ model Category {
 }
 
 model Product {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  slug          String   @unique
-  description   String
-  details       String?
-  sku           String   @unique
-  price         Float
-  comparePrice  Float?
-  costPrice     Float?
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  slug             String   @unique
+  description      String
+  shortDescription String?
+  details          String?
+  price            Float
+  comparePrice     Float?
+  costPrice        Float?
+  rating           Float    @default(0)
+  salesCount       Int      @default(0)
   categoryId    String   @db.ObjectId
   category      Category @relation(fields: [categoryId], references: [id])
   brand         String?
@@ -108,7 +117,12 @@ model Size {
 model Image {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   url       String
+  publicId  String? // Cloudinary public ID for deletion
+  width     Int?
+  height    Int?
+  format    String?
   alt       String?
+  order     Int     @default(0)
   isPrimary Boolean @default(false)
   productId String  @db.ObjectId
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -191,8 +205,8 @@ model WishlistItem {
 model Order {
   id              String        @id @default(auto()) @map("_id") @db.ObjectId
   orderNumber     String        @unique
-  userId          String        @db.ObjectId
-  user            User          @relation(fields: [userId], references: [id])
+  userId          String?       @db.ObjectId
+  user            User?         @relation(fields: [userId], references: [id])
   items           OrderItem[]
   status          OrderStatus   @default(PENDING)
   paymentStatus   PaymentStatus @default(PENDING)
@@ -234,8 +248,8 @@ model OrderItem {
 
 model Address {
   id             String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId         String  @db.ObjectId
-  user           User    @relation(fields: [userId], references: [id])
+  userId         String? @db.ObjectId
+  user           User?   @relation(fields: [userId], references: [id])
   name           String
   phone          String
   addressLine1   String
@@ -294,4 +308,35 @@ enum PaymentStatus {
   FAILED
   REFUNDED
   CANCELLED
+}
+
+model HeroSlide {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  subtitle    String?
+  description String?
+  image       String
+  ctaText     String?
+  ctaLink     String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("hero_slides")
+}
+
+model PromotionalBanner {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  description     String?
+  image           String?
+  link            String?
+  backgroundColor String?
+  order           Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("promotional_banners")
 }
