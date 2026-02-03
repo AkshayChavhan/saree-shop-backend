@@ -32,6 +32,7 @@ import razorpayWebhookRoutes from './routes/webhooks/razorpay.routes';
 
 // Middleware
 import { errorHandler } from './middleware/error.middleware';
+import { requireMasterKey } from './middleware/masterKey.middleware';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -49,7 +50,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check endpoint
+// Health check endpoint (public, no master key required)
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -57,6 +58,15 @@ app.get('/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development'
   });
 });
+
+// ===========================================
+// MASTER API KEY AUTHENTICATION
+// ===========================================
+// Apply master key check to ALL API routes
+// This runs BEFORE any other authentication middleware
+// Configure MASTER_API_KEY in .env file
+// Set BYPASS_MASTER_KEY=true in development to disable
+app.use('/api', requireMasterKey);
 
 // Public routes
 app.use('/api/products', productRoutes);

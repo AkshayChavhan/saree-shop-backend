@@ -32,6 +32,7 @@ const stripe_routes_1 = __importDefault(require("./routes/webhooks/stripe.routes
 const razorpay_routes_1 = __importDefault(require("./routes/webhooks/razorpay.routes"));
 // Middleware
 const error_middleware_1 = require("./middleware/error.middleware");
+const masterKey_middleware_1 = require("./middleware/masterKey.middleware");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
 // Security middleware
@@ -44,7 +45,7 @@ app.use((0, cors_1.default)({
 // Body parsing - Note: webhooks need raw body, so we handle that in webhook routes
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-// Health check endpoint
+// Health check endpoint (public, no master key required)
 app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
@@ -52,6 +53,14 @@ app.get('/health', (req, res) => {
         environment: process.env.NODE_ENV || 'development'
     });
 });
+// ===========================================
+// MASTER API KEY AUTHENTICATION
+// ===========================================
+// Apply master key check to ALL API routes
+// This runs BEFORE any other authentication middleware
+// Configure MASTER_API_KEY in .env file
+// Set BYPASS_MASTER_KEY=true in development to disable
+app.use('/api', masterKey_middleware_1.requireMasterKey);
 // Public routes
 app.use('/api/products', products_routes_1.default);
 app.use('/api/categories', categories_routes_1.default);
