@@ -1,9 +1,27 @@
 import { Router, Request, Response } from 'express';
+import multer from 'multer';
 import prisma from '../../lib/prisma';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requireAdmin } from '../../middleware/admin.middleware';
+import { uploadImage, deleteImage } from '../../lib/cloudinary';
 
 const router = Router();
+
+// Configure multer for memory storage
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG, and WebP are allowed.'));
+    }
+  },
+});
 
 router.use(requireAuth);
 router.use(requireAdmin);
@@ -87,6 +105,74 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json(category);
   } catch (error) {
     console.error('Error creating category:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/admin/categories/upload - Create category with image upload
+router.post('/upload', upload.single('image'), async (req: Request, res: Response) => {
+  try {
+    // Parse the data from JSON string
+    const data = req.body.data ? JSON.parse(req.body.data) : req.body;
+    const { name, slug, description, parentId, isActive = true } = data;
+
+    if (!name || !slug) {
+      return res.status(400).json({ error: 'Name and slug are required' });
+    }
+
+    // Check if slug already exists
+    const existingCategory = await prisma.category.findUnique({
+      where: { slug }
+    });
+
+    if (existingCategory) {
+      return res.status(400).json({ error: 'Category with this slug already exists' });
+    }
+
+    let imageUrl: string | null = null;
+    let imagePublicId: string | null = null;
+    let imageWidth: number | null = null;
+    let imageHeight: number | null = null;
+    let imageFormat: string | null = null;
+
+    // Upload image to Cloudinary if provided
+    if (req.file) {
+      try {
+        const result = await uploadImage(req.file.buffer, 'categories') as any;
+        imageUrl = result.secure_url;
+        imagePublicId = result.public_id;
+        imageWidth = result.width;
+        imageHeight = result.height;
+        imageFormat = result.format;
+      } catch (uploadError) {
+        console.error('Error uploading image to Cloudinary:', uploadError);
+        return res.status(500).json({ error: 'Failed to upload image' });
+      }
+    }
+
+    const category = await prisma.category.create({
+      data: {
+        name,
+        slug,
+        description,
+        image: imageUrl,
+        imagePublicId,
+        imageWidth,
+        imageHeight,
+        imageFormat,
+        parentId: parentId || null,
+        isActive
+      },
+      include: {
+        _count: {
+          select: { products: true }
+        }
+      }
+    });
+
+    res.status(201).json(category);
+  } catch (error) {
+    console.error('Error creating category with upload:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
