@@ -159,9 +159,8 @@ router.post('/', async (req: Request, res: Response) => {
           }))
         } : undefined,
         sizes: sizes ? {
-          create: sizes.map((size: { name: string; price?: number }) => ({
-            name: size.name,
-            price: size.price
+          create: sizes.map((size: { name: string }) => ({
+            name: size.name
           }))
         } : undefined
       },
@@ -302,9 +301,8 @@ router.post('/upload', upload.array('images', 10), async (req: Request, res: Res
           }))
         } : undefined,
         sizes: parsedSizes && parsedSizes.length > 0 ? {
-          create: parsedSizes.map((size: { name: string; price?: number }) => ({
-            name: size.name,
-            price: size.price ? parseFloat(size.price.toString()) : null
+          create: parsedSizes.map((size: { name: string }) => ({
+            name: size.name
           }))
         } : undefined
       },
@@ -318,9 +316,12 @@ router.post('/upload', upload.array('images', 10), async (req: Request, res: Res
     });
 
     res.status(201).json(product);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating product with upload:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({
+      error: 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
