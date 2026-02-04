@@ -32,89 +32,53 @@ jobs:
 
       - name: Fetch secrets from Secret Manager
         run: |
+          # Master API Key
+          MASTER_API_KEY=$(gcloud secrets versions access latest --secret=MASTER_API_KEY)
+          echo "MASTER_API_KEY=$MASTER_API_KEY" >> .env
+
           # Database
           DATABASE_URL=$(gcloud secrets versions access latest --secret=DATABASE_URL)
-          echo "DATABASE_URL=$DATABASE_URL" >> .env.production
+          echo "DATABASE_URL=$DATABASE_URL" >> .env
 
           # Clerk Authentication
           CLERK_SECRET_KEY=$(gcloud secrets versions access latest --secret=CLERK_SECRET_KEY)
           CLERK_WEBHOOK_SECRET=$(gcloud secrets versions access latest --secret=CLERK_WEBHOOK_SECRET)
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$(gcloud secrets versions access latest --secret=NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY)
-          NEXT_PUBLIC_CLERK_SIGN_IN_URL=$(gcloud secrets versions access latest --secret=NEXT_PUBLIC_CLERK_SIGN_IN_URL)
-          NEXT_PUBLIC_CLERK_SIGN_UP_URL=$(gcloud secrets versions access latest --secret=NEXT_PUBLIC_CLERK_SIGN_UP_URL)
-          NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=$(gcloud secrets versions access latest --secret=NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL)
-
-          echo "CLERK_SECRET_KEY=$CLERK_SECRET_KEY" >> .env.production
-          echo "CLERK_WEBHOOK_SECRET=$CLERK_WEBHOOK_SECRET" >> .env.production
-          echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" >> .env.production
-          echo "NEXT_PUBLIC_CLERK_SIGN_IN_URL=$NEXT_PUBLIC_CLERK_SIGN_IN_URL" >> .env.production
-          echo "NEXT_PUBLIC_CLERK_SIGN_UP_URL=$NEXT_PUBLIC_CLERK_SIGN_UP_URL" >> .env.production
-          echo "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=$NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL" >> .env.production
-
-          # Export NEXT_PUBLIC_* to environment for build process
-          echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" >> $GITHUB_ENV
-          echo "NEXT_PUBLIC_CLERK_SIGN_IN_URL=$NEXT_PUBLIC_CLERK_SIGN_IN_URL" >> $GITHUB_ENV
-          echo "NEXT_PUBLIC_CLERK_SIGN_UP_URL=$NEXT_PUBLIC_CLERK_SIGN_UP_URL" >> $GITHUB_ENV
-          echo "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=$NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL" >> $GITHUB_ENV
+          echo "CLERK_SECRET_KEY=$CLERK_SECRET_KEY" >> .env
+          echo "CLERK_WEBHOOK_SECRET=$CLERK_WEBHOOK_SECRET" >> .env
 
           # Cloudinary
           CLOUDINARY_API_KEY=$(gcloud secrets versions access latest --secret=CLOUDINARY_API_KEY)
           CLOUDINARY_API_SECRET=$(gcloud secrets versions access latest --secret=CLOUDINARY_API_SECRET)
           CLOUDINARY_CLOUD_NAME=$(gcloud secrets versions access latest --secret=CLOUDINARY_CLOUD_NAME)
-          NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=$(gcloud secrets versions access latest --secret=NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME)
-
-          echo "CLOUDINARY_API_KEY=$CLOUDINARY_API_KEY" >> .env.production
-          echo "CLOUDINARY_API_SECRET=$CLOUDINARY_API_SECRET" >> .env.production
-          echo "CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME" >> .env.production
-          echo "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=$NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME" >> .env.production
-          echo "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=$NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME" >> $GITHUB_ENV
+          echo "CLOUDINARY_API_KEY=$CLOUDINARY_API_KEY" >> .env
+          echo "CLOUDINARY_API_SECRET=$CLOUDINARY_API_SECRET" >> .env
+          echo "CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME" >> .env
 
           # Stripe
           STRIPE_SECRET_KEY=$(gcloud secrets versions access latest --secret=STRIPE_SECRET_KEY)
           STRIPE_WEBHOOK_SECRET=$(gcloud secrets versions access latest --secret=STRIPE_WEBHOOK_SECRET)
-          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$(gcloud secrets versions access latest --secret=NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
-
-          echo "STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY" >> .env.production
-          echo "STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET" >> .env.production
-          echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY" >> .env.production
-          echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY" >> $GITHUB_ENV
+          echo "STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY" >> .env
+          echo "STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET" >> .env
 
           # Razorpay
           RAZORPAY_KEY_ID=$(gcloud secrets versions access latest --secret=RAZORPAY_KEY_ID)
           RAZORPAY_KEY_SECRET=$(gcloud secrets versions access latest --secret=RAZORPAY_KEY_SECRET)
           RAZORPAY_WEBHOOK_SECRET=$(gcloud secrets versions access latest --secret=RAZORPAY_WEBHOOK_SECRET)
+          echo "RAZORPAY_KEY_ID=$RAZORPAY_KEY_ID" >> .env
+          echo "RAZORPAY_KEY_SECRET=$RAZORPAY_KEY_SECRET" >> .env
+          echo "RAZORPAY_WEBHOOK_SECRET=$RAZORPAY_WEBHOOK_SECRET" >> .env
 
-          echo "RAZORPAY_KEY_ID=$RAZORPAY_KEY_ID" >> .env.production
-          echo "RAZORPAY_KEY_SECRET=$RAZORPAY_KEY_SECRET" >> .env.production
-          echo "RAZORPAY_WEBHOOK_SECRET=$RAZORPAY_WEBHOOK_SECRET" >> .env.production
-
-          # OpenAI
-          OPENAI_API_KEY=$(gcloud secrets versions access latest --secret=OPENAI_API_KEY)
-          echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env.production
-
-          # Instagram
-          INSTAGRAM_ACCESS_TOKEN=$(gcloud secrets versions access latest --secret=INSTAGRAM_ACCESS_TOKEN)
-          echo "INSTAGRAM_ACCESS_TOKEN=$INSTAGRAM_ACCESS_TOKEN" >> .env.production
+          # Frontend URL (for CORS)
+          echo "FRONTEND_URL=https://your-staging-frontend.com" >> .env
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name: Build application
+      - name: Build TypeScript
         run: npm run build
-
-      - name: Prepare standalone build
-        run: |
-          # Copy static files to standalone folder (required for Next.js standalone)
-          cp -r .next/static .next/standalone/.next/
-          cp -r public .next/standalone/
-
-      - name: Substitute environment variables in app.staging.yaml
-        run: |
-          envsubst < app.staging.yaml > app.staging.yaml.tmp
-          mv app.staging.yaml.tmp app.staging.yaml
 
       - name: Deploy to App Engine (Staging)
         run: gcloud app deploy app.staging.yaml --quiet --promote
