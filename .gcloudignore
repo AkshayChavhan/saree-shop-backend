@@ -2,7 +2,7 @@
 .gitignore
 node_modules/
 .env
-.env.*
+.env.local
 *.log
 .next/cache/
 coverage/
@@ -10,3 +10,4 @@ coverage/
 *.md
 tests/
 __tests__/
+# Keep .env.production for runtime secrets

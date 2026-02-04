@@ -1,9 +1,11 @@
 runtime: nodejs20
-service: staging
+service: default
 instance_class: F1
 
 env_variables:
   NODE_ENV: staging
+  PORT: 8080
+  FRONTEND_URL: https://saakie.vercel.app
 
 automatic_scaling:
   min_instances: 0
