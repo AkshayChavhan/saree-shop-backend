@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
 // GET /api/admin/categories/:id - Get category by ID
 router.get('/:id', async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         const category = await prisma_1.default.category.findUnique({
             where: { id },
             include: {
@@ -87,7 +87,7 @@ router.post('/', async (req, res) => {
 // PATCH /api/admin/categories/:id - Update category
 router.patch('/:id', async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         const { name, slug, description, image, isActive } = req.body;
         // Check if new slug already exists (if changing slug)
         if (slug) {
@@ -121,7 +121,7 @@ router.patch('/:id', async (req, res) => {
 // DELETE /api/admin/categories/:id - Delete category
 router.delete('/:id', async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         // Check if category has products
         const productCount = await prisma_1.default.product.count({
             where: { categoryId: id }

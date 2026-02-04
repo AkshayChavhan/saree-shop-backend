@@ -131,7 +131,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.delete('/:productId', async (req: Request, res: Response) => {
   try {
     const userId = req.userId!;
-    const { productId } = req.params;
+    const productId = req.params.productId as string;
 
     const wishlist = await prisma.wishlist.findUnique({
       where: { userId }

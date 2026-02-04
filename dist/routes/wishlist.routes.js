@@ -120,7 +120,7 @@ router.post('/', async (req, res) => {
 router.delete('/:productId', async (req, res) => {
     try {
         const userId = req.userId;
-        const { productId } = req.params;
+        const productId = req.params.productId;
         const wishlist = await prisma_1.default.wishlist.findUnique({
             where: { userId }
         });

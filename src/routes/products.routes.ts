@@ -195,7 +195,7 @@ router.get('/featured', async (req: Request, res: Response) => {
 // GET /api/products/:slug - Get single product by slug
 router.get('/:slug', async (req: Request, res: Response) => {
   try {
-    const { slug } = req.params;
+    const slug = req.params.slug as string;
 
     const product = await prisma.product.findUnique({
       where: { slug },

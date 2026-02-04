@@ -42,7 +42,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const userId = req.userId!;
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const order = await prisma.order.findFirst({
       where: { id, userId },

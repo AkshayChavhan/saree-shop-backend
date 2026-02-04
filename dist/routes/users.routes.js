@@ -9,7 +9,7 @@ const router = (0, express_1.Router)();
 // GET /api/users/:clerkId/metadata - Get user metadata by Clerk ID
 router.get('/:clerkId/metadata', async (req, res) => {
     try {
-        const { clerkId } = req.params;
+        const clerkId = req.params.clerkId;
         if (!clerkId) {
             return res.status(400).json({ error: 'Clerk ID is required' });
         }

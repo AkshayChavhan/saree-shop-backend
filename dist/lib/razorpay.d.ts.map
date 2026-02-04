@@ -1,1 +1,1 @@
-{"version":3,"file":"razorpay.d.ts","sourceRoot":"","sources":["../../src/lib/razorpay.ts"],"names":[],"mappings":"AAAA,OAAO,QAAQ,MAAM,UAAU,CAAC;AAKhC,eAAO,MAAM,QAAQ,iBAKb,CAAC;AAET,eAAe,QAAQ,CAAC"}
+{"version":3,"file":"razorpay.d.ts","sourceRoot":"","sources":["../../src/lib/razorpay.ts"],"names":[],"mappings":"AAAA,OAAO,QAAQ,MAAM,UAAU,CAAC;AAKhC,eAAO,MAAM,QAAQ,UAKb,CAAC;AAET,eAAe,QAAQ,CAAC"}

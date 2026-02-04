@@ -42,7 +42,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const userId = req.userId;
-        const { id } = req.params;
+        const id = req.params.id;
         const order = await prisma_1.default.order.findFirst({
             where: { id, userId },
             include: {

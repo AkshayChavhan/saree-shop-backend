@@ -1,1 +1,1 @@
-{"version":3,"file":"stripe.d.ts","sourceRoot":"","sources":["../../src/lib/stripe.ts"],"names":[],"mappings":"AAAA,OAAO,MAAM,MAAM,QAAQ,CAAC;AAI5B,eAAO,MAAM,MAAM,eAEX,CAAC;AAET,eAAe,MAAM,CAAC"}
+{"version":3,"file":"stripe.d.ts","sourceRoot":"","sources":["../../src/lib/stripe.ts"],"names":[],"mappings":"AAAA,OAAO,MAAM,MAAM,QAAQ,CAAC;AAI5B,eAAO,MAAM,MAAM,QAEX,CAAC;AAET,eAAe,MAAM,CAAC"}

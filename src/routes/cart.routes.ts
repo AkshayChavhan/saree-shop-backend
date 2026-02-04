@@ -179,7 +179,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.patch('/items/:itemId', async (req: Request, res: Response) => {
   try {
     const userId = req.userId!;
-    const { itemId } = req.params;
+    const itemId = req.params.itemId as string;
     const { quantity } = req.body;
 
     if (quantity < 1) {
@@ -247,7 +247,7 @@ router.patch('/items/:itemId', async (req: Request, res: Response) => {
 router.delete('/items/:itemId', async (req: Request, res: Response) => {
   try {
     const userId = req.userId!;
-    const { itemId } = req.params;
+    const itemId = req.params.itemId as string;
 
     // Find the cart item
     const cartItem = await prisma.cartItem.findFirst({

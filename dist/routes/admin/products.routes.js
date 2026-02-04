@@ -60,7 +60,7 @@ router.get('/', async (req, res) => {
 // GET /api/admin/products/:id - Get product by ID
 router.get('/:id', async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         const product = await prisma_1.default.product.findUnique({
             where: { id },
             include: {
@@ -142,7 +142,7 @@ router.post('/', async (req, res) => {
 // PATCH /api/admin/products/:id - Update product
 router.patch('/:id', async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         const updateData = req.body;
         // Remove nested data that needs special handling
         const { images, colors, sizes, ...productData } = updateData;
@@ -166,7 +166,7 @@ router.patch('/:id', async (req, res) => {
 // DELETE /api/admin/products/:id - Delete product
 router.delete('/:id', async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         // Check if product has orders
         const orderCount = await prisma_1.default.orderItem.count({
             where: { productId: id }

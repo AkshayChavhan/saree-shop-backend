@@ -67,7 +67,7 @@ router.get('/', async (req: Request, res: Response) => {
 // GET /api/admin/users/:id - Get user by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const user = await prisma.user.findUnique({
       where: { id },
@@ -97,7 +97,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // PATCH /api/admin/users/:id - Update user role
 router.patch('/:id', async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { role } = req.body;
 
     if (!['USER', 'ADMIN', 'SUPER_ADMIN'].includes(role)) {
@@ -124,7 +124,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 // DELETE /api/admin/users/:id - Delete user (Super Admin only)
 router.delete('/:id', requireSuperAdmin, async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     // Don't allow deleting self
     if (id === req.userId) {

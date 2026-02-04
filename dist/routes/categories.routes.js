@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
 // GET /api/categories/:slug - Get category with products
 router.get('/:slug', async (req, res) => {
     try {
-        const { slug } = req.params;
+        const slug = req.params.slug;
         const { page = '1', limit = '12' } = req.query;
         const pageNum = parseInt(page);
         const limitNum = parseInt(limit);

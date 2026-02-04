@@ -65,7 +65,7 @@ router.get('/', async (req, res) => {
 // GET /api/admin/users/:id - Get user by ID
 router.get('/:id', async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         const user = await prisma_1.default.user.findUnique({
             where: { id },
             include: {
@@ -92,7 +92,7 @@ router.get('/:id', async (req, res) => {
 // PATCH /api/admin/users/:id - Update user role
 router.patch('/:id', async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         const { role } = req.body;
         if (!['USER', 'ADMIN', 'SUPER_ADMIN'].includes(role)) {
             return res.status(400).json({ error: 'Invalid role' });
@@ -115,7 +115,7 @@ router.patch('/:id', async (req, res) => {
 // DELETE /api/admin/users/:id - Delete user (Super Admin only)
 router.delete('/:id', admin_middleware_1.requireSuperAdmin, async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
         // Don't allow deleting self
         if (id === req.userId) {
             return res.status(400).json({ error: 'Cannot delete yourself' });

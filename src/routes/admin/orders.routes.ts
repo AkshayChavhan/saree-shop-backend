@@ -68,7 +68,7 @@ router.get('/', async (req: Request, res: Response) => {
 // GET /api/admin/orders/:id - Get order by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const order = await prisma.order.findUnique({
       where: { id },
@@ -102,7 +102,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // PATCH /api/admin/orders/:id - Update order status
 router.patch('/:id', async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { status, paymentStatus, trackingNumber, notes } = req.body;
 
     const updateData: any = {};

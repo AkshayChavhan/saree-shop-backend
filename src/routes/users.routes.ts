@@ -6,7 +6,7 @@ const router = Router();
 // GET /api/users/:clerkId/metadata - Get user metadata by Clerk ID
 router.get('/:clerkId/metadata', async (req: Request, res: Response) => {
   try {
-    const { clerkId } = req.params;
+    const clerkId = req.params.clerkId as string;
 
     if (!clerkId) {
       return res.status(400).json({ error: 'Clerk ID is required' });

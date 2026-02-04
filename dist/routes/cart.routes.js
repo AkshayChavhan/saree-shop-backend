@@ -163,7 +163,7 @@ router.post('/', async (req, res) => {
 router.patch('/items/:itemId', async (req, res) => {
     try {
         const userId = req.userId;
-        const { itemId } = req.params;
+        const itemId = req.params.itemId;
         const { quantity } = req.body;
         if (quantity < 1) {
             return res.status(400).json({ error: 'Quantity must be at least 1' });
@@ -223,7 +223,7 @@ router.patch('/items/:itemId', async (req, res) => {
 router.delete('/items/:itemId', async (req, res) => {
     try {
         const userId = req.userId;
-        const { itemId } = req.params;
+        const itemId = req.params.itemId;
         // Find the cart item
         const cartItem = await prisma_1.default.cartItem.findFirst({
             where: {
