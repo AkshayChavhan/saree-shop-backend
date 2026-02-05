@@ -179,11 +179,33 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
+// Multer error handler wrapper
+const handleMulterError = (req: Request, res: Response, next: Function) => {
+  upload.array('images', 10)(req, res, (err: any) => {
+    if (err) {
+      console.error('[Upload] Multer error:', err.message || err);
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large. Maximum size is 5MB per file.' });
+      }
+      if (err.code === 'LIMIT_FILE_COUNT') {
+        return res.status(400).json({ error: 'Too many files. Maximum is 10 files.' });
+      }
+      return res.status(400).json({ error: err.message || 'File upload error' });
+    }
+    next();
+  });
+};
+
 // POST /api/admin/products/upload - Create product with image upload
-router.post('/upload', upload.array('images', 10), async (req: Request, res: Response) => {
+router.post('/upload', handleMulterError, async (req: Request, res: Response) => {
   try {
+    console.log('[Upload] Request received');
+    console.log('[Upload] Files count:', req.files ? (req.files as Express.Multer.File[]).length : 0);
+    console.log('[Upload] Body keys:', Object.keys(req.body));
+
     // Parse the data from JSON string
     const data = req.body.data ? JSON.parse(req.body.data) : req.body;
+    console.log('[Upload] Parsed data:', JSON.stringify(data, null, 2));
     const {
       name,
       slug,
@@ -228,10 +250,13 @@ router.post('/upload', upload.array('images', 10), async (req: Request, res: Res
     const uploadedImages: Array<{ url: string; publicId: string; width: number; height: number; format: string; isPrimary: boolean }> = [];
 
     if (req.files && Array.isArray(req.files)) {
+      console.log('[Upload] Starting Cloudinary uploads for', req.files.length, 'files');
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
+        console.log(`[Upload] Uploading file ${i + 1}:`, file.originalname, file.size, 'bytes');
         try {
           const result = await uploadImage(file.buffer, 'products') as any;
+          console.log(`[Upload] File ${i + 1} uploaded successfully:`, result.secure_url);
           uploadedImages.push({
             url: result.secure_url,
             publicId: result.public_id,
@@ -240,11 +265,12 @@ router.post('/upload', upload.array('images', 10), async (req: Request, res: Res
             format: result.format,
             isPrimary: i === 0 // First image is primary
           });
-        } catch (uploadError) {
-          console.error('Error uploading image to Cloudinary:', uploadError);
+        } catch (uploadError: any) {
+          console.error(`[Upload] Error uploading file ${i + 1} to Cloudinary:`, uploadError.message || uploadError);
           // Continue with other images even if one fails
         }
       }
+      console.log('[Upload] Cloudinary uploads complete. Successful:', uploadedImages.length);
     }
 
     // Build dimensions object only if all dimensions are provided (required by schema)
@@ -315,12 +341,14 @@ router.post('/upload', upload.array('images', 10), async (req: Request, res: Res
       }
     });
 
+    console.log('[Upload] Product created successfully:', product.id);
     res.status(201).json(product);
   } catch (error: any) {
-    console.error('Error creating product with upload:', error);
+    console.error('[Upload] Error creating product:', error.message || error);
+    console.error('[Upload] Error stack:', error.stack);
     res.status(500).json({
       error: 'Internal server error',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: error.message // Always show error message for debugging
     });
   }
 });

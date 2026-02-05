@@ -26,6 +26,9 @@ yarn-error.log*
 .env*.local
 .env
 
+# Google App Engine secrets (DO NOT COMMIT)
+env_variables.yaml
+
 # Vercel
 .vercel
 
