@@ -285,7 +285,18 @@ router.post('/upload', handleMulterError, async (req: Request, res: Response) =>
     // Parse colors and sizes if they're strings
     const parsedColors = typeof colors === 'string' ? JSON.parse(colors) : colors;
     const parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
-    const parsedOccasion = typeof occasion === 'string' ? JSON.parse(occasion) : (occasion || []);
+    // Handle occasion - can be plain string, JSON array string, or array
+    let parsedOccasion: string[] = [];
+    if (typeof occasion === 'string') {
+      try {
+        parsedOccasion = JSON.parse(occasion);
+      } catch {
+        // If not valid JSON, treat as single value
+        parsedOccasion = occasion.trim() ? [occasion.trim()] : [];
+      }
+    } else if (Array.isArray(occasion)) {
+      parsedOccasion = occasion;
+    }
 
     const product = await prisma.product.create({
       data: {
