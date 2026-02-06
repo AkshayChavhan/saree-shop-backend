@@ -3,6 +3,9 @@ import prisma from '../lib/prisma';
 
 const router = Router();
 
+// Get frontend URL for absolute image paths
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://saakie.vercel.app';
+
 // GET /api/hero-slides - Get hero slides for homepage
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -11,7 +14,7 @@ router.get('/', async (req: Request, res: Response) => {
       orderBy: { order: 'asc' }
     });
 
-    // If no slides in database, return default slides
+    // If no slides in database, return default slides with absolute URLs
     if (heroSlides.length === 0) {
       return res.json([
         {
@@ -19,7 +22,7 @@ router.get('/', async (req: Request, res: Response) => {
           title: 'Exquisite Silk Sarees',
           subtitle: 'Handcrafted with Love',
           description: 'Discover our collection of premium silk sarees',
-          image: '/images/hero-1.jpg',
+          image: `${FRONTEND_URL}/images/hero-1.jpg`,
           ctaText: 'Shop Now',
           ctaLink: '/products?category=silk',
           order: 1
@@ -29,7 +32,7 @@ router.get('/', async (req: Request, res: Response) => {
           title: 'Wedding Collection',
           subtitle: 'For Your Special Day',
           description: 'Elegant bridal sarees for your memorable moments',
-          image: '/images/hero-2.jpg',
+          image: `${FRONTEND_URL}/images/hero-2.jpg`,
           ctaText: 'Explore',
           ctaLink: '/products?category=wedding',
           order: 2
