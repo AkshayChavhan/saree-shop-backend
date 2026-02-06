@@ -220,15 +220,42 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string;
 
-    // Check if category has products
-    const productCount = await prisma.product.count({
-      where: { categoryId: id }
+    // Check if category exists
+    const category = await prisma.category.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: { products: true, children: true }
+        }
+      }
     });
 
-    if (productCount > 0) {
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+
+    // Check if category has child categories
+    if (category._count.children > 0) {
       return res.status(400).json({
-        error: `Cannot delete category with ${productCount} products. Move or delete products first.`
+        error: `Cannot delete category with ${category._count.children} subcategories. Delete or reassign subcategories first.`
       });
+    }
+
+    // Check if category has products
+    if (category._count.products > 0) {
+      return res.status(400).json({
+        error: `Cannot delete category with ${category._count.products} products. Move or delete products first.`
+      });
+    }
+
+    // Delete the category image from Cloudinary if it exists
+    if (category.imagePublicId) {
+      try {
+        await deleteImage(category.imagePublicId);
+      } catch (deleteError) {
+        console.error('Error deleting category image from Cloudinary:', deleteError);
+        // Continue with deletion even if image deletion fails
+      }
     }
 
     await prisma.category.delete({

@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const router = (0, express_1.Router)();
+// Get frontend URL for absolute image paths
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://saakie.vercel.app';
 // GET /api/hero-slides - Get hero slides for homepage
 router.get('/', async (req, res) => {
     try {
@@ -13,7 +15,7 @@ router.get('/', async (req, res) => {
             where: { isActive: true },
             orderBy: { order: 'asc' }
         });
-        // If no slides in database, return default slides
+        // If no slides in database, return default slides with absolute URLs
         if (heroSlides.length === 0) {
             return res.json([
                 {
@@ -21,7 +23,7 @@ router.get('/', async (req, res) => {
                     title: 'Exquisite Silk Sarees',
                     subtitle: 'Handcrafted with Love',
                     description: 'Discover our collection of premium silk sarees',
-                    image: '/images/hero-1.jpg',
+                    image: `${FRONTEND_URL}/images/hero-1.jpg`,
                     ctaText: 'Shop Now',
                     ctaLink: '/products?category=silk',
                     order: 1
@@ -31,7 +33,7 @@ router.get('/', async (req, res) => {
                     title: 'Wedding Collection',
                     subtitle: 'For Your Special Day',
                     description: 'Elegant bridal sarees for your memorable moments',
-                    image: '/images/hero-2.jpg',
+                    image: `${FRONTEND_URL}/images/hero-2.jpg`,
                     ctaText: 'Explore',
                     ctaLink: '/products?category=wedding',
                     order: 2
